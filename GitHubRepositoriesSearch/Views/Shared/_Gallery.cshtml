@@ -1,0 +1,7 @@
+﻿<div id="gallery" class="row centerBlock">    
+    <div class="gallery" ng-repeat="repository in repositories" title={{repository.name}} style="position:relative">        
+        <img ng-src={{repository.owner.avatar_url}} alt={{repository.name}}>
+        <img ng-src={{getStarUrl(repository.id)}} style="position:absolute; width:24px; top:1px; right:1px" ng-click="setBookmark($index)"/>                                            
+        <div class="desc">{{repository.name}}</div>
+    </div>        
+</div>

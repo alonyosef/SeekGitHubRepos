@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Title = "Bookmarks";
+}
+
+@Styles.Render("~/Content/gallery.css")
+
+<h2>@ViewBag.Title</h2>
+
+@if (Model == null || Model.Count == 0)
+{
+    <h3>You have no bookmarked repositories</h3>
+}
+else
+{
+    <h3>You have @Model.Count bookmarked @(Model.Count == 1 ? "repository" : "repositories")</h3>
+    
+    <div ng-controller="myCtrl" ng-init="getBookmarks(@Newtonsoft.Json.JsonConvert.SerializeObject(Model))">            
+        @Html.Partial("_Gallery")
+    </div>
+}
+
+

@@ -1,0 +1,23 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+@Styles.Render("~/Content/gallery.css")
+ 
+<div ng-controller="myCtrl" ng-init="setBookmarkIds(@Newtonsoft.Json.JsonConvert.SerializeObject(Model))" style="text-align:center">        
+    <div class="jumbotron" style="text-align:center">
+        <h1>Search for GitHub Repositories</h1>        
+        <p class="lead">
+            <input type="text" ng-model="inputSearch" required placeholder="Search for repositories" style="text-align:center" ng-keypress="searchOnEnter($event)"/>
+            <input type="button" class="btn btn-primary btn-lg" value="Search &raquo;" ng-disabled="inputSearchDisabled()" ng-click="getRepositories(true)"/>                        
+            <br />
+            <br />            
+            <span id="searchMatchedMessage">{{searchResultsMessage}}</span>
+        </p>
+    </div>    
+    @Html.Partial("_Gallery")         
+    <br />
+    <img id="loader" src="~/Content/pics/loader.gif" style="display:none" />            
+    <br />
+    <input id="showMoreResults" type="button" value="show more results" style="display:none; width:40%; height:30px; margin-top:40px" ng-click="getRepositories(false)" />  
+</div>  
