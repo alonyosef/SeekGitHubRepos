@@ -1,16 +1,19 @@
 ﻿var app = angular.module('searchGitHubRepositoryApp', []);
 
 app.controller('myCtrl', function ($scope, $http) {
-    $scope.repositories = [];
-    $scope.repositoriesCount = 0;
-    $scope.resultsPage = 1;    
-    $scope.bookmarksIds = [];
+    $scope.repositories = []; //currently showing repositories
+    $scope.repositoriesCount = 0; //total repository count
+    $scope.resultsPage = 1; // current search page result
+    $scope.bookmarksIds = []; //ids for the current bookmarks
+
+    //enable/disable search button according to existance of search text
     $scope.inputSearchDisabled = function () {
         return $scope.inputSearch == null || $scope.inputSearch.length == 0;
     }
 
+    //gets repositories according to the search text
     $scope.getRepositories = function (newSearch) {               
-        if (newSearch) {
+        if (newSearch) {//if it's a new search reset all parameters
             if ($scope.inputSearch == null)
                 return;
             $scope.searchResultsMessage = null;
@@ -19,17 +22,19 @@ app.controller('myCtrl', function ($scope, $http) {
             $scope.searchText = $scope.inputSearch;
             showMoreResultsButton.style.display = 'none';
         } else 
-            $scope.resultsPage++;                    
+            $scope.resultsPage++; //if it's not a new search advance 1 page forward               
 
+        //turn on loader before http request
         setLoader(true);
+
         $http.get('https://api.github.com/search/repositories?q=' + $scope.searchText + '&page=' + $scope.resultsPage).then(function successCallback(res) {
             setLoader(false);
             $scope.repositoriesCount = res.data.total_count;
             if ($scope.repositoriesCount > 0) {                                
-                $scope.repositories = $scope.repositories.concat(res.data.items);                                
-                showMoreResultsButton.style.display = $scope.repositoriesCount - $scope.repositories.length == 0 ? 'none' : '';
+                $scope.repositories = $scope.repositories.concat(res.data.items); //add the result to the existing ones - if it's a new search the initial array is empty                             
+                showMoreResultsButton.style.display = $scope.repositoriesCount - $scope.repositories.length == 0 ? 'none' : ''; //check if "show more results" button is needed
             }
-            if (newSearch)
+            if (newSearch) 
                 $scope.resetSearchMessage();
         }, function errorCallback(response) {
             if (newSearch)
@@ -39,6 +44,7 @@ app.controller('myCtrl', function ($scope, $http) {
         });            
     }
 
+    //allow search to be conducted on enter press
     $scope.searchOnEnter = function ($event) {
         if ($event.keyCode == 13)
             $scope.getRepositories(true);
@@ -48,11 +54,13 @@ app.controller('myCtrl', function ($scope, $http) {
 
     var searchMatchedMessage = document.getElementById('searchMatchedMessage');
 
+    //show search result message
     $scope.resetSearchMessage = function () {        
         $scope.searchResultsMessage = ($scope.repositoriesCount == 0 ? 'No' : $scope.repositoriesCount) + ' repositories match your search';
         searchMatchedMessage.style.color = $scope.repositoriesCount == 0 ? 'red' : 'green';
     }
 
+    //send request to home controller the set a bookmark
     $scope.setBookmark = function ($index) {                             
         var item = gallery.children[$index];
         var bookmarkIcon = item.children[1];
@@ -75,17 +83,20 @@ app.controller('myCtrl', function ($scope, $http) {
         });               
     }
 
+    //gets bookmark ids
     $scope.getBookmarks = function (bookmarks) {        
         $scope.repositories = bookmarks;
         for (i = 0; i < bookmarks.length; i++) {
             $scope.bookmarksIds.push(bookmarks[i].id);
         }
     }
-
+    
+    //set bookmark ids
     $scope.setBookmarkIds = function (bookmarkIds) {
         $scope.bookmarksIds = bookmarkIds;        
     }
 
+    //returns the appropriate bookmark button image url by id
     $scope.getStarUrl = function (id) {        
         var imageName = ($scope.bookmarksIds != null && $scope.bookmarksIds.includes(id) ? 'full_star' : 'empty_star') + '.png';        
         return window.location.origin + '/Content/pics/' + imageName;

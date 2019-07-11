@@ -12,14 +12,19 @@ namespace GitHubRepositoriesSearch.Controllers
     {
         public ActionResult Index()
         {
+            //return existing bookmark ids on home page for a new search
             return View(getBookmarksIds());
         }
         
+        //Add a bookmark to / Remove a bookmark from session
+        //repository is the original json object as string, form a Github search
         public ActionResult SetBookmark(string repository)
         {            
             try
             {
-                dynamic item = JsonConvert.DeserializeObject(repository);
+                //create the actual object
+                dynamic item = JsonConvert.DeserializeObject(repository); 
+                //Handle the list on session
                 var bookmarks = (List<object>)Session["Bookmarks"];
                 if (bookmarks == null)
                 {
@@ -28,22 +33,24 @@ namespace GitHubRepositoriesSearch.Controllers
                 }
                 else
                 {
+                    //add/remove bookmark
                     var existingItem = getBookmark((int)item.id);
                     if (existingItem == null)
                         bookmarks.Add(item);
                     else
                         bookmarks.Remove(existingItem);
                 }                
-
+                
                 Session["Bookmarks"] = bookmarks;
                 return Json(new { status = "ok", result = true }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {                 
-                return Json(new { status = "ok", result = ex }, JsonRequestBehavior.AllowGet);
+                return Json(new { status = "error", result = ex }, JsonRequestBehavior.AllowGet);
             }            
         }    
         
+        //replacement to contains since object is dynamic
         private object getBookmark(int id)
         {
             var bookmarks = (List<object>)Session["Bookmarks"];
@@ -60,9 +67,11 @@ namespace GitHubRepositoriesSearch.Controllers
 
         public ActionResult Bookmarks()
         {            
+            //returns all bookmarks
             return View(Session["Bookmarks"]);            
         }
 
+        //gets the ids of the existing bookmarks
         private int[] getBookmarksIds()
         {
             dynamic bookmarks = (List<object>)Session["Bookmarks"];
